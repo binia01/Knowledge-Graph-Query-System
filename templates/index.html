@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Stack Overflow Knowledge Graph — Query System</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+    <a href="#main-content" class="skip-link">Skip to main content</a>
+
+    <header role="banner">
+        <div class="header-content">
+            <h1>📚 Stack Overflow Knowledge Graph</h1>
+            <p class="subtitle">Ask questions about Stack Overflow posts, users, tags, and answers in plain English</p>
+        </div>
+        <div class="header-actions">
+            <button id="btn-clear" class="btn btn-secondary" aria-label="Clear conversation history">
+                Clear Chat
+            </button>
+            <button id="btn-schema" class="btn btn-secondary" aria-label="View database schema">
+                Schema
+            </button>
+            <button id="btn-health" class="btn btn-secondary" aria-label="Check system health">
+                Health
+            </button>
+        </div>
+    </header>
+
+    <main id="main-content" role="main">
+        <div class="layout">
+            <!-- Chat Area -->
+            <section class="chat-section" aria-label="Conversation">
+                <div id="chat-messages" class="chat-messages" role="log" aria-live="polite" aria-label="Chat messages">
+                    <div class="welcome-message">
+                        <h2>Welcome! Ask me anything about Stack Overflow.</h2>
+                        <p>I can answer questions using graph traversal, semantic similarity, or multi-step reasoning.</p>
+                    </div>
+                </div>
+
+                <form id="question-form" class="input-area" role="form" aria-label="Ask a question">
+                    <label for="question-input" class="sr-only">Type your question</label>
+                    <input
+                        type="text"
+                        id="question-input"
+                        placeholder="e.g., What are the most popular Python questions?"
+                        autocomplete="off"
+                        aria-describedby="input-hint"
+                        required
+                    >
+                    <span id="input-hint" class="sr-only">Press Enter or click Send to submit your question</span>
+                    <button type="submit" id="btn-send" class="btn btn-primary" aria-label="Send question">
+                        Send
+                    </button>
+                </form>
+            </section>
+
+            <!-- Sidebar -->
+            <aside class="sidebar" aria-label="Query details and examples">
+                <!-- Example Questions -->
+                <div class="panel" id="examples-panel">
+                    <h3>Example Questions</h3>
+                    <div class="example-group">
+                        <h4>🔗 Graph Traversal</h4>
+                        <button class="example-btn" data-question="What are the most viewed questions?">What are the most viewed questions?</button>
+                        <button class="example-btn" data-question="Which tags are used most frequently?">Which tags are used most frequently?</button>
+                        <button class="example-btn" data-question="Show me questions tagged with 'python'">Show me questions tagged with 'python'</button>
+                    </div>
+                    <div class="example-group">
+                        <h4>🧠 Similarity Search</h4>
+                        <button class="example-btn" data-question="Find questions about optimizing database queries">Find questions about optimizing database queries</button>
+                        <button class="example-btn" data-question="How do I handle async/await in JavaScript?">How do I handle async/await in JavaScript?</button>
+                    </div>
+                    <div class="example-group">
+                        <h4>🔀 Hybrid Search</h4>
+                        <button class="example-btn" data-question="Find questions about memory management that are tagged with 'c++'">Hybrid: memory management + c++ tag</button>
+                    </div>
+                    <div class="example-group">
+                        <h4>🤖 Agent (Multi-step)</h4>
+                        <button class="example-btn" data-question="Which users have the most answers, and what tags do they contribute to?">Top answerers and their tags</button>
+                    </div>
+                    <div class="example-group">
+                        <h4>❓ Ambiguous</h4>
+                        <button class="example-btn" data-question="Show me some stuff about code">Show me some stuff about code</button>
+                    </div>
+                </div>
+
+                <!-- Query Details Panel -->
+                <div class="panel" id="details-panel" hidden>
+                    <h3>Query Details</h3>
+                    <div id="query-details">
+                        <div class="detail-row">
+                            <span class="detail-label">Type:</span>
+                            <span id="detail-type" class="badge">—</span>
+                        </div>
+                        <div class="detail-row">
+                            <span class="detail-label">Confidence:</span>
+                            <span id="detail-score">—</span>
+                        </div>
+                        <div class="detail-row">
+                            <span class="detail-label">Cached:</span>
+                            <span id="detail-cached">—</span>
+                        </div>
+                        <div class="detail-row" id="cypher-row" hidden>
+                            <span class="detail-label">Cypher:</span>
+                            <pre id="detail-cypher" class="cypher-block"></pre>
+                        </div>
+                        <div class="detail-row" id="issues-row" hidden>
+                            <span class="detail-label">Issues:</span>
+                            <ul id="detail-issues"></ul>
+                        </div>
+                        <div class="detail-row" id="steps-row" hidden>
+                            <span class="detail-label">Agent Steps:</span>
+                            <div id="detail-steps"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Cache Stats -->
+                <div class="panel" id="cache-panel">
+                    <h3>Cache Stats</h3>
+                    <div id="cache-stats">
+                        <p class="muted">No queries yet</p>
+                    </div>
+                </div>
+            </aside>
+        </div>
+    </main>
+
+    <!-- Schema Modal -->
+    <div id="schema-modal" class="modal" role="dialog" aria-labelledby="schema-title" aria-hidden="true">
+        <div class="modal-backdrop" tabindex="-1"></div>
+        <div class="modal-content" role="document">
+            <div class="modal-header">
+                <h2 id="schema-title">Database Schema</h2>
+                <button class="modal-close" aria-label="Close schema dialog">&times;</button>
+            </div>
+            <pre id="schema-body" class="schema-block">Loading...</pre>
+        </div>
+    </div>
+
+    <!-- Health Modal -->
+    <div id="health-modal" class="modal" role="dialog" aria-labelledby="health-title" aria-hidden="true">
+        <div class="modal-backdrop" tabindex="-1"></div>
+        <div class="modal-content" role="document">
+            <div class="modal-header">
+                <h2 id="health-title">System Health</h2>
+                <button class="modal-close" aria-label="Close health dialog">&times;</button>
+            </div>
+            <div id="health-body">Loading...</div>
+        </div>
+    </div>
+
+    <script src="{{ url_for('static', filename='js/app.js') }}"></script>
+</body>
+</html>
