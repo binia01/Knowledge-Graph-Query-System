@@ -29,6 +29,7 @@ A natural language query system for a Neo4j Stack Overflow knowledge graph. Ask 
 
 flowchart TD
     A[User Question] --> B[Query Classifier]
+
     B -->|graph| C[Graph]
     B -->|vector| D[Vector]
     B -->|hybrid| E[Hybrid]
@@ -36,19 +37,19 @@ flowchart TD
 
     C --> G[Cypher Generator]
     D --> H[Embedding Search]
-    E --> I[Vector + Graph Filter]
-    F --> J[ReAct Loop (multi-step)]
+    E --> I[Vector and Graph Filter]
+    F --> J[ReAct Loop multi step]
 
-    G --> K[Validator (confidence scoring)]
+    G --> K[Validator - confidence scoring]
     H --> K
     I --> K
     J --> K
 
-    K -->|score ≥ 0.7| L[Execute on Neo4j]
-    K -->|0.4–0.69| M[Auto-correct & retry]
-    K -->|score < 0.4| N[Reject, ask user to clarify]
+    K -->|score >= 0.7| L[Execute on Neo4j]
+    K -->|0.4 to 0.69| M[Auto correct and retry]
+    K -->|score < 0.4| N[Reject and ask user to clarify]
 
-    L --> O[Gemini humanizes results → Natural language answer]
+    L --> O[Gemini humanizes results to natural language answer]
     M --> O
     N --> O
    
